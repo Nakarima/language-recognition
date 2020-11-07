@@ -38,18 +38,46 @@ def create_common_model_from_files(filenames):
 def vector_len(values):
   return math.sqrt(sum([v**2 for v in values]))
 
-def check_for_model(sample, model):
-  digrams_sample = create_digram_model(get_only_words(sample))
+def check_cosinus_for_model(digrams_sample, model):
   upp = sum([digrams_sample[gram] * model[gram] for gram in digrams_sample if gram in model])
   sample_len = vector_len(digrams_sample.values())
   model_len = vector_len(model.values())
   return 1 - (upp / (sample_len * model_len))
 
+def check_euclides_for_model(digrams_sample, model):
+  upp = sum([(digrams_sample[gram] - model[gram])**2 for gram in digrams_sample if gram in model])
+  return math.sqrt(upp)
+
+def check_maximum_for_model(digrams_sample, model):
+  distances = [abs(digrams_sample[gram] - model[gram]) for gram in digrams_sample if gram in model]
+  return max(distances)
+
+def check_taxi_for_model(digrams_sample, model):
+  upp = sum([abs(digrams_sample[gram] - model[gram]) for gram in digrams_sample if gram in model])
+  return math.sqrt(upp)
+
 def check_text(sample, models):
-  results = {lang: check_for_model(sample, model) for lang, model in models.items()}
+  digrams_sample = create_digram_model(get_only_words(sample))
+  print("counting cosinus metric for sample")
+  results = {lang: check_cosinus_for_model(digrams_sample, model) for lang, model in models.items()}
   [print("for lang: ", lang, " result is: ", result) for lang, result in results.items()]
-  
   print("most propable language is: ", min(results, key=results.get))
+
+  print("counting euclides metric for sample WARNING, not accurate for small samples")
+  results = {lang: check_euclides_for_model(digrams_sample, model) for lang, model in models.items()}
+  [print("for lang: ", lang, " result is: ", result) for lang, result in results.items()]
+  print("most propable language is: ", min(results, key=results.get))
+
+  print("counting maximum metric for sample WARNING, not accurate for small samples")
+  results = {lang: check_maximum_for_model(digrams_sample, model) for lang, model in models.items()}
+  [print("for lang: ", lang, " result is: ", result) for lang, result in results.items()]
+  print("most propable language is: ", min(results, key=results.get))
+
+  print("counting taxi metric for sample WARNING, not accurate for small samples")
+  results = {lang: check_taxi_for_model(digrams_sample, model) for lang, model in models.items()}
+  [print("for lang: ", lang, " result is: ", result) for lang, result in results.items()]
+  print("most propable language is: ", min(results, key=results.get))
+  
 
 def get_lang_files():
   files = os.listdir('inputs')
