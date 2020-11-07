@@ -23,7 +23,7 @@ def get_only_words(text):
   return ' '.join(words)
 
 def get_text_from_file(filename):
-  with open(filename, 'r') as f:
+  with open(filename, 'r', encoding = 'utf8') as f:
     return f.read().replace('\n', '')
 
 def concat_files(filenames):
